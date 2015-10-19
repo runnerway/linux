@@ -16,7 +16,7 @@
 #define __TVIN_H
 
 #include <plat/io.h>
-#include <linux/amlogic/amports/cm.h>
+#include <linux/amlogic/cm.h>
 
 #define R_CBUS_REG(reg) aml_read_reg32(CBUS_REG_ADDR(reg))
 #define W_CBUS_REG(reg, val) aml_write_reg32(CBUS_REG_ADDR(reg), val)

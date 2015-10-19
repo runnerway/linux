@@ -148,23 +148,40 @@ static const u32 frame_rate_tab[16] = {
 };
 
 static struct vframe_s vfpool[VF_POOL_SIZE];
+static struct vframe_s vfpool2[VF_POOL_SIZE];
+static int cur_pool_idx = 0;
 static s32 vfbuf_use[DECODE_BUFFER_NUM_MAX];
 static u32 dec_control = 0;
 static u32 frame_width, frame_height, frame_dur, frame_prog;
 static struct timer_list recycle_timer;
 static u32 stat;
 static u32 buf_start, buf_size, ccbuf_phyAddress;
+static void *ccbuf_phyAddress_remap;
 static DEFINE_SPINLOCK(lock);
 
 static u32 frame_rpt_state;
 
 static struct dec_sysinfo vmpeg12_amstream_dec_info;
+extern u32 trickmode_i;
+static bool i_only_mode = false;
 
 /* for error handling */
 static s32 frame_force_skip_flag = 0;
 static s32 error_frame_skip_level = 0;
+static s32 dtmb_flag = 0;
 static s32 wait_buffer_counter = 0;
 static u32 first_i_frame_ready = 0;
+
+static inline int pool_index(vframe_t *vf)
+{
+    if ((vf >= &vfpool[0]) && (vf <= &vfpool[VF_POOL_SIZE-1])) {
+        return 0;
+    } else if ((vf >= &vfpool[1]) && (vf <= &vfpool2[VF_POOL_SIZE-1])) {
+        return 1;
+    } else {
+        return -1;
+    }
+}
 
 static inline u32 index2canvas(u32 index)
 {
@@ -255,8 +272,8 @@ static irqreturn_t vmpeg12_isr(int irq, void *dev_id)
 
     reg = READ_VREG(MREG_BUFFEROUT);
 
-    if ((reg >> 16) == 0xfe) {	
-        wakeup_userdata_poll(reg & 0xffff, ccbuf_phyAddress, CCBUF_SIZE);
+    if ((reg >> 16) == 0xfe && ccbuf_phyAddress_remap != NULL) {
+        wakeup_userdata_poll(reg & 0xffff, ccbuf_phyAddress_remap, CCBUF_SIZE, 0);
         WRITE_VREG(MREG_BUFFEROUT, 0);
     }
     else if (reg) {
@@ -269,8 +286,8 @@ static irqreturn_t vmpeg12_isr(int irq, void *dev_id)
             first_i_frame_ready = 1;
         }
 
-        if ((((info & PICINFO_TYPE_MASK) == PICINFO_TYPE_I) || ((info & PICINFO_TYPE_MASK) == PICINFO_TYPE_P))
-             && (pts_lookup_offset_us64(PTS_TYPE_VIDEO, offset, &pts, 0, &pts_us64) == 0)) {
+        if ((pts_lookup_offset_us64(PTS_TYPE_VIDEO, offset, &pts, 0, &pts_us64) == 0)
+             && (dtmb_flag || ((info & PICINFO_TYPE_MASK) == PICINFO_TYPE_I) || ((info & PICINFO_TYPE_MASK) == PICINFO_TYPE_P))) {
             pts_valid = 1;
         }
 
@@ -310,6 +327,15 @@ static irqreturn_t vmpeg12_isr(int irq, void *dev_id)
         }
         else if (dec_control & DEC_CONTROL_FLAG_FORCE_SEQ_INTERLACE) {
             frame_prog = 0;
+        }
+
+        if (i_only_mode) {
+            pts_valid = false;
+
+            // and add a default duration for 1/30 second if there is no valid frame duration available
+            if (frame_dur == 0) {
+                frame_dur = 96000/30;
+            }
         }
 
         if (frame_prog & PICINFO_PROG) {
@@ -476,7 +502,9 @@ static vframe_t *vmpeg_vf_get(void* op_arg)
 
 static void vmpeg_vf_put(vframe_t *vf, void* op_arg)
 {
-    kfifo_put(&recycle_q, (const vframe_t **)&vf);
+    if (pool_index(vf) == cur_pool_idx) {
+        kfifo_put(&recycle_q, (const vframe_t **)&vf);
+    }
 }
 
 static int vmpeg_event_cb(int type, void *data, void *private_data)
@@ -582,7 +610,9 @@ static void vmpeg_put_timer_func(unsigned long arg)
                 vf->index = -1;
             }
 
-            kfifo_put(&newframe_q, (const vframe_t **)&vf);
+            if (pool_index(vf) == cur_pool_idx) {
+                kfifo_put(&newframe_q, (const vframe_t **)&vf);
+            }
         }
     }
 
@@ -688,10 +718,31 @@ static void vmpeg12_canvas_init(void)
 #endif
         }
     }
-
-    ccbuf_phyAddress = buf_start + 9 * decbuf_size;
+    if (ccbuf_phyAddress != buf_start + 9 * decbuf_size ||
+            !ccbuf_phyAddress_remap) {
+        ccbuf_phyAddress = buf_start + 9 * decbuf_size;
+        if (ccbuf_phyAddress_remap)
+            iounmap(ccbuf_phyAddress_remap);
+        ccbuf_phyAddress_remap = ioremap_nocache(ccbuf_phyAddress, CCBUF_SIZE);
+        if (!ccbuf_phyAddress_remap) {
+            printk("%s: Can not remap ccbuf_phyAddress\n", __FUNCTION__);
+        }
+    }
     WRITE_VREG(MREG_CO_MV_START, buf_start + 9 * decbuf_size + CCBUF_SIZE);
 
+}
+
+int vmpeg12_set_trickmode(unsigned long trickmode)
+{
+    if (trickmode == TRICKMODE_I) {
+        i_only_mode = true;
+        trickmode_i = 1;
+    } else if (trickmode == TRICKMODE_NONE) {
+        i_only_mode = false;
+        trickmode_i = 0;
+    }
+
+    return 0;
 }
 
 static void vmpeg12_prot_init(void)
@@ -772,8 +823,10 @@ static void vmpeg12_local_init(void)
     INIT_KFIFO(recycle_q);
     INIT_KFIFO(newframe_q);
 
+    cur_pool_idx ^= 1;
+
     for (i=0; i<VF_POOL_SIZE; i++) {
-        const vframe_t *vf = &vfpool[i];
+        const vframe_t *vf = (cur_pool_idx == 0) ? &vfpool[i] : &vfpool2[i];
         vfpool[i].index = -1;
         kfifo_put(&newframe_q, &vf);
     }
@@ -849,6 +902,8 @@ static s32 vmpeg12_init(void)
 
     set_vdec_func(&vmpeg12_dec_status);
 
+    set_trickmode_func(&vmpeg12_set_trickmode);
+
     return 0;
 }
 
@@ -907,7 +962,12 @@ static int amvdec_mpeg12_remove(struct platform_device *pdev)
     }
 
     amvdec_disable();
-
+    if (ccbuf_phyAddress_remap) {
+        iounmap(ccbuf_phyAddress_remap);
+        ccbuf_phyAddress_remap = NULL;
+    }
+    ccbuf_phyAddress = 0;
+    dtmb_flag = 0;
     amlog_level(LOG_LEVEL_INFO, "amvdec_mpeg12 remove.\n");
 
     return 0;
@@ -959,6 +1019,8 @@ module_param(dec_control, uint, 0664);
 MODULE_PARM_DESC(dec_control, "\n amvmpeg12 decoder control \n");
 module_param(error_frame_skip_level, uint, 0664);
 MODULE_PARM_DESC(error_frame_skip_level, "\n amvdec_mpeg12 error_frame_skip_level \n");
+module_param(dtmb_flag, uint, 0664);
+MODULE_PARM_DESC(dtmb_flag, "\n amvdec_mpeg12 dtmb_flag \n");
 
 module_init(amvdec_mpeg12_driver_init_module);
 module_exit(amvdec_mpeg12_driver_remove_module);

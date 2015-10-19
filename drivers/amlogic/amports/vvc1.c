@@ -305,6 +305,9 @@ static irqreturn_t vvc1_isr(int irq, void *dev_id)
             }
         }
 #endif
+        if ((picture_type == B_PICTURE) && avi_flag) {
+            pts_valid = 0;
+        }
 
         if ((pts_valid) && (frm.state != RATE_MEASURE_DONE)) {
             if (frm.state == RATE_MEASURE_START_PTS) {
@@ -823,7 +826,7 @@ static void vvc1_put_timer_func(unsigned long arg)
 
 static s32 vvc1_init(void)
 {
-    printk("vvc1_init\n");
+    printk("vvc1_init, format %d\n", vvc1_amstream_dec_info.format);
     init_timer(&recycle_timer);
 
     stat |= STAT_TIMER_INIT;
