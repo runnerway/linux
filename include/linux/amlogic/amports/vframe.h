@@ -59,6 +59,7 @@
 #define DISP_RATIO_ASPECT_RATIO_MAX     0x3ff
 
 #define VFRAME_FLAG_NO_DISCONTINUE      1
+#define VFRAME_FLAG_SWITCHING_FENSE     2
 
 typedef enum pixel_aspect_ratio_e {
         PIXEL_ASPECT_RATIO_1_1,
@@ -169,6 +170,7 @@ typedef struct vframe_s {
         u32 ratio_control;
 
         u32 orientation;
+        u32 video_angle;
         enum vframe_source_type_e source_type;
         enum vframe_secam_phase_e  phase;
         enum vframe_source_mode_e source_mode;
@@ -194,6 +196,7 @@ typedef struct vframe_s {
         enum pixel_aspect_ratio_e pixel_ratio;
         u64 ready_jiffies64;//ready from decode on  jiffies_64
         atomic_t use_cnt;
+		u32  frame_dirty;
 } vframe_t;
 
 #if 0
