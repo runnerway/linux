@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2010-2014 ARM Limited. All rights reserved.
- * 
+ *
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
- * 
+ *
  * A copy of the licence is included with the program, and can also be obtained from Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
@@ -355,6 +355,30 @@ static int ump_file_ioctl(struct inode *inode, struct file *filp, unsigned int c
 
 	return err;
 }
+
+/*int map_errcode(_mali_osk_errcode_t err)
+{
+	switch (err) {
+	case _MALI_OSK_ERR_OK :
+		return 0;
+	case _MALI_OSK_ERR_FAULT:
+		return -EFAULT;
+	case _MALI_OSK_ERR_INVALID_FUNC:
+		return -ENOTTY;
+	case _MALI_OSK_ERR_INVALID_ARGS:
+		return -EINVAL;
+	case _MALI_OSK_ERR_NOMEM:
+		return -ENOMEM;
+	case _MALI_OSK_ERR_TIMEOUT:
+		return -ETIMEDOUT;
+	case _MALI_OSK_ERR_RESTARTSYSCALL:
+		return -ERESTARTSYS;
+	case _MALI_OSK_ERR_ITEM_NOT_FOUND:
+		return -ENOENT;
+	default:
+		return -EFAULT;
+	}
+}*/
 
 /*
  * Handle from OS to map specified virtual memory to specified UMP memory.

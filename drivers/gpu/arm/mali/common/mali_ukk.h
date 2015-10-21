@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2010-2014 ARM Limited. All rights reserved.
- * 
+ *
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
- * 
+ *
  * A copy of the licence is included with the program, and can also be obtained from Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
@@ -550,8 +550,6 @@ _mali_osk_errcode_t _mali_ukk_sw_counters_report(_mali_uk_sw_counters_report_s *
 /** @} */ /* end group uddapi */
 
 u32 _mali_ukk_report_memory_usage(void);
-
-u32 _mali_ukk_report_total_memory_size(void);
 
 u32 _mali_ukk_utilization_gp_pp(void);
 

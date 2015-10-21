@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2010-2014 ARM Limited. All rights reserved.
- * 
+ *
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
- * 
+ *
  * A copy of the licence is included with the program, and can also be obtained from Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
@@ -46,7 +46,7 @@ _mali_osk_errcode_t ump_kernel_constructor(void)
 	/* Perform OS Specific initialization */
 	err = _ump_osk_init();
 	if (_MALI_OSK_ERR_OK != err) {
-		//MSG_ERR(("Failed to initiaze the UMP Device Driver"));
+		MSG_ERR(("Failed to initiaze the UMP Device Driver"));
 		return err;
 	}
 
@@ -56,7 +56,7 @@ _mali_osk_errcode_t ump_kernel_constructor(void)
 	/* Create the descriptor map, which will be used for mapping secure ID to ump_dd_mem structs */
 	device.secure_id_map = ump_random_mapping_create();
 	if (NULL == device.secure_id_map) {
-		//MSG_ERR(("Failed to create secure id lookup table\n"));
+		MSG_ERR(("Failed to create secure id lookup table\n"));
 		return _MALI_OSK_ERR_NOMEM;
 	}
 

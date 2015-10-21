@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2010, 2012-2013 ARM Limited. All rights reserved.
- * 
+ *
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
- * 
+ *
  * A copy of the licence is included with the program, and can also be obtained from Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
@@ -27,13 +27,11 @@
 #include "common/mali_pmu.h"
 #include "common/mali_osk_profiling.h"
 
-int mali_pm_statue = 1;
+int mali_pm_statue = 0;
 
 static struct mali_gpu_device_data mali_gpu_data =
 {
 	.shared_mem_size = 1024 * 1024 * 1024,
-	.fb_start = 0x06100000,
-	.fb_size = 0x01800000,
 	.max_job_runtime = 60000, /* 60 seconds */
 	.pmu_switch_delay = 0xFFFF, /* do not have to be this high on FPGA, but it is good for testing to have a delay */
 	.pmu_domain_config = {0x1, 0x2, 0x4, 0x4, 0x4, 0x8, 0x8, 0x8, 0x8, 0x1, 0x2, 0x8},
@@ -117,4 +115,3 @@ static void mali_platform_device_release(struct device *device)
 {
 	MALI_DEBUG_PRINT(4, ("mali_platform_device_release() called\n"));
 }
-

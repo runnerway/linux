@@ -7,7 +7,7 @@
 	compatible = "arm,mali";
 	dev_name = "mali";
 	status = "ok";
-		
+
 //$$ L2 PROP_U32 = "dvfs_id"
 //$$ L2 PROP_U32 = "recorde_number"
 //$$ L2 PROP_U32 = "dvfs_table"

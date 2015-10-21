@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2010-2014 ARM Limited. All rights reserved.
- * 
+ *
  * This program is free software and is provided to you under the terms of the GNU General Public License version 2
  * as published by the Free Software Foundation, and any use by you of this program is subject to the terms of such GNU licence.
- * 
+ *
  * A copy of the licence is included with the program, and can also be obtained from Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
@@ -13,7 +13,9 @@
  * Implementation of the OS abstraction layer for the kernel device driver
  */
 
-#include <linux/slab.h> /* For memory allocation */
+#include <linux/types.h>
+#include <mach/cpu.h>
+#include <linux/slab.h>	/* For memory allocation */
 #include <linux/interrupt.h>
 #include <linux/wait.h>
 #include <linux/sched.h>
@@ -29,6 +31,16 @@ typedef struct _mali_osk_irq_t_struct {
 
 typedef irqreturn_t (*irq_handler_func_t)(int, void *, struct pt_regs *);
 static irqreturn_t irq_handler_upper_half(int port_name, void *dev_id);   /* , struct pt_regs *regs*/
+
+#if MESON_CPU_TYPE == MESON_CPU_TYPE_MESON6
+u32 get_irqnum(struct _mali_osk_irq_t_struct* irq)
+{
+	if (irq)
+		return irq->irqnum;
+	else
+		return 0;
+}
+#endif
 
 #if defined(DEBUG)
 
