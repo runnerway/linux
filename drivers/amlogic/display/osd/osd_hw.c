@@ -3057,6 +3057,9 @@ void osd_init_hw(u32  logo_loaded)
 		aml_write_reg32(P_VIU_OSD2_CTRL_STAT , data32);
 	}
 
+	aml_set_reg32_bits(P_VIU_OSD1_FIFO_CTRL_STAT, 12, 5, 5);
+	aml_set_reg32_bits(P_VIU_OSD2_FIFO_CTRL_STAT, 12, 5, 5);
+
 #if defined(CONFIG_FB_OSD2_CURSOR)
 	aml_set_reg32_mask(P_VPP_MISC, VPP_POST_FG_OSD2 | VPP_PRE_FG_OSD2);
 	osd_hw.osd_order = OSD_ORDER_10;
