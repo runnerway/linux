@@ -31,7 +31,7 @@ static int currentStep;
 static int lastStep;
 static struct work_struct wq_work;
 static mali_plat_info_t* pmali_plat = NULL;
-static int  scaling_mode = MALI_PP_FS_SCALING;
+static int  scaling_mode = MALI_TURBO_MODE;
 
 static void do_scaling(struct work_struct *work)
 {

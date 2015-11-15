@@ -33,9 +33,8 @@
  */
 
 #define CFG_PP 2
-#define CFG_CLOCK 3
-#define CFG_MIN_PP 1
-#define CFG_MIN_CLOCK 0
+#define CFG_CLOCK 4
+#define CFG_MIN_PP 2
 
 /* fclk is 2550Mhz. */
 #define FCLK_DEV3 (6 << 9)		/*	850   Mhz  */
@@ -72,11 +71,11 @@ static void mali_plat_preheat(void);
 static mali_plat_info_t mali_plat_data = {
 	.cfg_pp = CFG_PP,  /* number of pp. */
 	.cfg_min_pp = CFG_MIN_PP,
-	.turbo_clock = 4, /* reserved clock src. */
-	.def_clock = 2, /* gpu clock used most of time.*/
+	.turbo_clock = CFG_CLOCK, /* reserved clock src. */
+	.def_clock = CFG_CLOCK, /* gpu clock used most of time.*/
 	.cfg_clock = CFG_CLOCK, /* max gpu clock. */
 	.cfg_clock_bkup = CFG_CLOCK,
-	.cfg_min_clock = CFG_MIN_CLOCK,
+	.cfg_min_clock = CFG_CLOCK,
 
 	.sc_mpp = 2, /* number of pp used most of time.*/
 	.bst_gpu = 210, /* threshold for boosting gpu. */
@@ -93,7 +92,7 @@ static mali_plat_info_t mali_plat_data = {
 	.scale_info = {
 		CFG_MIN_PP, /* minpp */
 		CFG_PP, /* maxpp, should be same as cfg_pp */
-		CFG_MIN_CLOCK, /* minclk */
+		CFG_CLOCK, /* minclk */
 		CFG_CLOCK, /* maxclk should be same as cfg_clock */
 	},
 
