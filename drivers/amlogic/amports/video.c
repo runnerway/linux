@@ -120,7 +120,9 @@ static struct vframe_provider_s * osd_prov = NULL;
 #define MODULE_NAME "amvideo"
 #define DEVICE_NAME "amvideo"
 
+#ifdef CONFIG_AML_VSYNC_FIQ_ENABLE
 #define FIQ_VSYNC
+#endif
 
 //#define SLOW_SYNC_REPEAT
 //#define INTERLACE_FIELD_MATCH_PROCESS

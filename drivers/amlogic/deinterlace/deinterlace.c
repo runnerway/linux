@@ -71,8 +71,16 @@
 //#define RUN_DI_PROCESS_IN_TIMER_IRQ
 //#define RUN_DI_PROCESS_IN_TIMER
 
+#if MESON_CPU_TYPE >= MESON_CPU_TYPE_MESON6
+#ifdef CONFIG_AML_VSYNC_FIQ_ENABLE
 #define FIQ_VSYNC
 #define FIQ_IRQ_ON_MULTI_CORE
+#else
+#undef FIQ_VSYNC
+#endif
+#else
+#define FIQ_VSYNC
+#endif
 
 #ifdef FIQ_VSYNC
 #include <plat/fiq_bridge.h>

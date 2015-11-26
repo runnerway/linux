@@ -42,9 +42,9 @@
 #include <linux/amlogic/osd/osd.h>
 #include <linux/amlogic/osd/osd_hw.h>
 #include <linux/amlogic/vout/vout_notify.h>
-
+#ifdef CONFIG_AML_VSYNC_FIQ_ENABLE
 #define FIQ_VSYNC
-
+#endif
 #include "osd_log.h"
 #include "osd_hw_def.h"
 #include "osd_clone.h"
