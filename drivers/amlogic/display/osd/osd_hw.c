@@ -60,11 +60,7 @@
 	} while (0)
 #endif
 
-
-#ifdef CONFIG_AML_VSYNC_FIQ_ENABLE
 #define  FIQ_VSYNC
-#endif
-
 
 #ifdef CONFIG_VSYNC_RDMA
 int reset_rdma(void);
