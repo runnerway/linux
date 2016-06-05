@@ -382,7 +382,7 @@ to drop one field and send real height in vframe*/
 #define TVIN_PARM_FLAG_2D_TO_3D 0x00000004
 /* tvin_parm_t.flag[ 2]: 1/enable or 0/disable 2D->3D mode */
 
-enum tvin_trans_fmt {
+typedef enum tvin_trans_fmt {
 	TVIN_TFMT_2D = 0,
 	TVIN_TFMT_3D_LRH_OLOR,
 /* 1 Primary: Side-by-Side(Half) Odd/Left picture, Odd/Right p */
@@ -408,7 +408,7 @@ enum tvin_trans_fmt {
 	TVIN_TFMT_3D_DET_LR,	/* 13 */
 	TVIN_TFMT_3D_DET_INTERLACE,	/* 14 */
 	TVIN_TFMT_3D_DET_CHESSBOARD,	/* 15 */
-};
+} tvin_trans_fmt_t;
 
 const char *tvin_trans_fmt_str(enum tvin_trans_fmt trans_fmt);
 

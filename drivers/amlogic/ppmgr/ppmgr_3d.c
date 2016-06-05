@@ -53,7 +53,7 @@ static int cur_process_type;
 static int mask_canvas_index = -1;
 static int ppmgr_3d_clear_count;
 
-struct Process3d_t {
+typedef struct{
 	unsigned all_mode;
 	unsigned char mode;
 	unsigned char src_format;
@@ -64,7 +64,7 @@ struct Process3d_t {
 	unsigned _2d_3d_control;
 	unsigned _2d_3d_control_value;
 /*unsigned direction; //0: 0 degree, 1: 90, 2: 180, 3:270*/
-};
+}Process3d_t;
 
 struct display_frame_s {
 	int frame_top;
@@ -83,7 +83,7 @@ extern struct vfq_s q_ready;
 extern struct vfq_s q_free;
 extern int get_bypass_mode(void);*/
 
-static struct Process3d_t _3d_process = {0};
+static Process3d_t _3d_process = {0};
 
 void Reset3Dclear(void)
 {
